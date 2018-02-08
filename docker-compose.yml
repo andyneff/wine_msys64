@@ -1,0 +1,13 @@
+version: "2.3"
+
+services:
+  bash:
+    image: vsiri/wine_msys64
+    privileged: true
+    build:
+      context: .
+    environment:
+      - DISPLAY
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:ro
+    network_mode: bridge
