@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+set -eu
+
+if [ -n "${DISPLAY-set}" ] && [ -d /tmp/.X11-unix ]; then
+
+##  useradd -m -u "${USER_ID}" user
+##  cp -r /root/.wine/drive_c/msys64/home/root /root/.wine/drive_c/msys64/home/user
+
+  # This would add about 6 seconds to start time
+  # gosu user cp -r /root/.wine/ /home/user/.wine || :
+  # unset WINEPREFIX
+  # This is instant, and works well enough. I don't need write access to all the .wine files
+##  chown user /root/.wine /root/.wine/* /root/.wine/drive_c/users /root/.wine/drive_c/msys64/etc
+##  chown -R user /root/.wine/drive_c/msys64/{home/user,dev,tmp}
+
+  # Start wine
+  gosu user wine 'C:\msys64\usr\bin\mintty.exe' /usr/bin/bash --login "${@}"
+
+  # Wait for it to end
+  gosu user wineserver --wait
+else
+  # I have to run wineconsole once, and THEN it WORKS?!
+  wineconsole cmd /c :
+
+  wineconsole 'C:\msys64\usr\bin\bash.exe' --login ${@+"${@}"}
+fi

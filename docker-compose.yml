@@ -1,13 +1,75 @@
 version: "2.3"
 
 services:
-  bash:
+  bash_gui: &wine
     image: vsiri/wine_msys64
-    privileged: true
-    build:
+    cap_add:
+      - SYS_PTRACE
+    build:  &wine_build
       context: .
+      args:
+        - MSYS2_VERSION=20160719
+    environment:
+      - DISPLAY
+      - WINEDEBUG=fixme-all,err-winediag,err-menubuilder
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:ro
+    network_mode: bridge
+  wine:
+    <<: *wine
+    image: vsiri/wine
+    build:
+      <<: *wine_build
+      dockerfile: wine.Dockerfile
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:ro
+      - wine:/home/.user_wine
+  wine1:
+    <<: *wine
+    image: vsiri/wine1
+    build:
+      <<: *wine_build
+      dockerfile: wine1.Dockerfile
+  wine2:
+    <<: *wine
+    image: vsiri/wine2
+    build:
+      <<: *wine_build
+      dockerfile: wine2.Dockerfile
+  wine3:
+    <<: *wine
+    image: vsiri/wine3
+    build:
+      <<: *wine_build
+      dockerfile: wine3.Dockerfile
+  wine4:
+    <<: *wine
+    image: vsiri/wine4
+    build:
+      <<: *wine_build
+      dockerfile: wine4.Dockerfile
+  wine5:
+    <<: *wine
+    image: vsiri/wine5
+    build:
+      <<: *wine_build
+      dockerfile: wine5.Dockerfile
+  twine:
+    image: teaci/wine-staging
+    cap_add:
+      - SYS_PTRACE
     environment:
       - DISPLAY
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:ro
     network_mode: bridge
+  bash:
+    image: vsiri/wine_msys64
+    cap_add:
+      - SYS_PTRACE
+    build:
+      context: .
+    network_mode: bridge
+
+volumes:
+   wine:
