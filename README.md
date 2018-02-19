@@ -94,11 +94,13 @@ to prevent winpty from hiding the console window.
 
 1. Black mintty
     - https://bugs.winehq.org/show_bug.cgi?id=44066
-    - Versions of wine-staging after 2.4.0 result in mintty drawing
+    - Versions of wine-staging after 2.4.0 result in `mintty.exe` drawing
 to X, but as a black screen. It is in fact working, you can type in it like
 normally and it is working, you just can not see any thing. There will be a brief
 glimpse at what should be seen when you click the X to close the screen. But
 nothing else shows the graphics at all
+    - `mingw64.exe` behaves the same way.
+    - `bash` in `wineconsole` does work mostly, but you will have no scrollbars
 
 1. What about wine 3?
     - I have not consistently tested wine 3.x, but any attempts have failed to run
@@ -114,9 +116,17 @@ images. I'll remove that eventually
 
 - wine.Dockerfile - The main working version
 - Dockerfile - The original "It works!" POC
-- wine1.Dockerfile - Running in Fedora, which is my native OS. No luck at ALL
+- wine1.Dockerfile - Running in Fedora. Partial luck:
+
+    ```
+    wineconsole cmd /c 'c:\msys64\usr\bin\bash -c "/usr/bin/bash -l"'
+    ```
+
+    The quotes are important. No mintty so far
+    - mingw64.exe does work as normal.
+
 - wine2.Dockerfile - Closest reproductions of teaci/wine-staging with msys2
 - wine3.Dockerfile - Basically, wine with all recommended packages too, just in
 case
-- wine4.Dockerfile - Using Ubuntu 16.04 - Works, but no mintty
+- wine4.Dockerfile - Using Ubuntu 16.04 - Works, but no mintty, but mingw64.exe does work
 - wine5.Dockerfile - Trying using Debian jessie. WORKS!
