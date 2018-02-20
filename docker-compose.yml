@@ -24,6 +24,15 @@ services:
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:ro
       - wine_ubuntu_16.04:/home/.user_wine
+  ubuntu_18.04:
+    <<: *wine
+    image: andyneff/wine_msys64:ubuntu_18.04
+    build:
+      <<: *wine_build
+      dockerfile: ubuntu_18.04.Dockerfile
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:ro
+      - wine_ubuntu_18.04:/home/.user_wine
   debian_8:
     <<: *wine
     image: andyneff/wine_msys64:debian_8
@@ -55,6 +64,7 @@ services:
 volumes:
   wine_ubuntu_14.04:
   wine_ubuntu_16.04:
+  wine_ubuntu_18.04:
   wine_debian_8:
   wine_debian_9:
   wine_fedora_27:

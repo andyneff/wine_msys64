@@ -13,6 +13,7 @@ if [ -n "${FAST_WINE_DIR+set}" ]; then
   : ${WINEPREFIX=/home/wine}
   export WINEPREFIX
 else
+  mkdir -p /home/.user_wine
   # Handle docker often make a volume owned by root by default
   chown user:user /home/.user_wine
   # Link the dir in instead of mounting, cause then useradd won't populate skel
@@ -39,15 +40,6 @@ else
     fi
   fi
 fi
-
-# Debian 8 & Ubuntu 14.04
-# wine C:\msys64\usr\bin\mintty.exe /usr/bin/bash -l
-# Debian 9
-# wineconsole -> usr\bin\mintty > nul
-# wineconsole cmd /c 'C:\msys64\usr\bin\mintty.exe > nul'
-# wineconsole cmd /c 'C:\msys64\usr\bin\mintty.exe /usr/bin/bash > null'
-# wineconsole cmd /c 'C:\msys64\usr\bin\mintty.exe' /usr/bin/bash \> nul
-# wineconsole cmd /c call 'C:\msys64\usr\bin\mintty.exe' /usr/bin/bash -l \> nul
 
 if [ "${1-unset}" = "root" ]; then
   exec bash

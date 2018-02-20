@@ -1,6 +1,6 @@
 FROM vsiri/recipe:gosu as gosu
 
-FROM ubuntu:16.04 as wine-staging
+FROM ubuntu:18.04 as wine-staging
 
 SHELL ["bash", "-euxvc"]
 
@@ -18,9 +18,7 @@ RUN dpkg --add-architecture i386; \
     libasound2 libc6 libgcc1 libglib2.0-0 libglu1-mesa libgphoto2-6 \
     libgphoto2-port12 libgstreamer-plugins-base1.0-0 libgstreamer1.0-0 \
     liblcms2-2 libldap-2.4-2 libmpg123-0 libopenal1 libpulse0 libudev1 libx11-6 \
-    libxext6 libxml2 zlib1g libasound2-plugins libncurses5 \
-    # Font patch
-    --force-yes libfreetype6=2.6.1-0.1ubuntu2 libfreetype6:i386=2.6.1-0.1ubuntu2; \
+    libxext6 libxml2 zlib1g libasound2-plugins libncurses5; \
     apt-get clean -y
 
 
@@ -51,6 +49,18 @@ RUN apt-get update; \
 ENV LANG=en_US.UTF-8 \
     LANGUAGE=en_US:en \
     LC_ALL=en_US.UTF-8
+
+# This IS bug https://bugs.winehq.org/show_bug.cgi?id=43715
+RUN build_deps="curl"; \
+    apt-get update; \
+    DEBIAN_FRONTEND=noninteractive \
+    apt-get install -y --no-install-recommends ${build_deps}; \
+    curl -LO http://archive.ubuntu.com/ubuntu/pool/main/f/freetype/libfreetype6_2.8-0.2ubuntu2_i386.deb; \
+    curl -LO http://archive.ubuntu.com/ubuntu/pool/main/f/freetype/libfreetype6_2.8-0.2ubuntu2_amd64.deb; \
+    dpkg -i libfreetype6_2.8*.deb; \
+    rm libfreetype6_2.8*.deb; \
+    DEBIAN_FRONTEND=noninteractive apt-get purge --auto-remove -y ${build_deps}; \
+    apt-get clean -y
 
 ####
 
