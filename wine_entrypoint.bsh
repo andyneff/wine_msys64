@@ -2,42 +2,71 @@
 
 set -eu
 
-useradd -m -u "${USER_ID}" user
-# A copy is faster than a chown, due to how snapshots work. At least this is
-# true on brtfs
+: ${USER_ID=1000}
+: ${GROUP_ID="${USER_ID}"}
 
-# Handle docker often make a volume owned by root by default
-chown user:user /home/.user_wine
-# Link the dir in instead of mounting, cause then useradd won't populate skel
-ln -s /home/.user_wine /home/user/.wine
+groupadd -og "${GROUP_ID}" user
+useradd -mou "${USER_ID}" -g "${GROUP_ID}" user
 
-
-
-# This would add about 6 seconds to start time
-if [ ! -d "/home/user/.wine/drive_c" ]; then
-  echo "Initializing .wine directory..."
-  (
-    shopt -s dotglob;
-    gosu user cp -ra /home/wine/* /home/user/.wine/
-  )
-  echo "Done!"
+# The FAST_WINE_DIR variable can disable the correct ownership behavior
+if [ -n "${FAST_WINE_DIR+set}" ]; then
+  : ${WINEPREFIX=/home/wine}
+  export WINEPREFIX
 else
-  if [ "$(stat -c %U /home/user/.wine/drive_c)" != "user" ]; then
-    echo "The wine directory does not appear to be owned by you."
-    echo "Either you changed user_id or you need to remove the wine volume"
-    echo "Unpredictable behavior may occur"
+  # Handle docker often make a volume owned by root by default
+  chown user:user /home/.user_wine
+  # Link the dir in instead of mounting, cause then useradd won't populate skel
+  ln -s /home/.user_wine /home/user/.wine
+
+  # This would add about 6 seconds to start time
+  if [ ! -d "/home/user/.wine/drive_c" ]; then
+    echo "Initializing .wine directory..."
+    (
+      shopt -s dotglob;
+
+      # A copy is faster than a chown, due to how snapshots work. At least this
+      # is true on brtfs
+      gosu user cp -ra /home/wine/* /home/user/.wine/
+    )
+    echo "Done!"
+  else
+    if [ "$(stat -c %U /home/user/.wine/drive_c)" != "user" ]; then
+      echo "The wine directory does not appear to be owned by you."
+      echo "You probably changed your USER_ID and didn't to remove the wine volume"
+      echo "Re-chowning now... (This may take a while)"
+      chown -R user:user /home/user/.wine/
+      echo "Done"
+    fi
   fi
 fi
 
-if [ -n "${DISPLAY:+set}" ] && [ -d /tmp/.X11-unix ]; then
-  # Start wine
-  gosu user wine 'C:\msys64\usr\bin\mintty.exe' /usr/bin/bash --login "${@}"
+# Debian 8 & Ubuntu 14.04
+# wine C:\msys64\usr\bin\mintty.exe /usr/bin/bash -l
+# Debian 9
+# wineconsole -> usr\bin\mintty > nul
+# wineconsole cmd /c 'C:\msys64\usr\bin\mintty.exe > nul'
+# wineconsole cmd /c 'C:\msys64\usr\bin\mintty.exe /usr/bin/bash > null'
+# wineconsole cmd /c 'C:\msys64\usr\bin\mintty.exe' /usr/bin/bash \> nul
+# wineconsole cmd /c call 'C:\msys64\usr\bin\mintty.exe' /usr/bin/bash -l \> nul
 
-  # Wait for it to end
-  gosu user wineserver --wait
+if [ "${1-unset}" = "root" ]; then
+  exec bash
 else
-  # I have to run wineconsole once, and THEN it WORKS?!
-  gosu user wineconsole cmd /c :
+  if [ -n "${DISPLAY:+set}" ] && [ -d /tmp/.X11-unix ]; then
+    if [ "${MSYS2_WINE_WORKAROUND}" = "0" ]; then
+      # Start wine
+      gosu user wine 'C:\msys64\usr\bin\mintty.exe' /usr/bin/bash --login ${@+"${@}"}
+    elif [ "${MSYS2_WINE_WORKAROUND}" = "1" ]; then
+      gosu user wineconsole cmd /c 'C:\msys64\usr\bin\mintty.exe' /usr/bin/bash --login ${@+"${@}"} \> nul
+    fi
+    # Wait for it to end
+    gosu user wineserver --wait
+  else
+    # There's a random bug I observed where bash in wineconsole using ncurses
+    # doesn't work on the first try, but does on the second. So make a dummy
+    # call to ncurses
+    gosu user wineconsole cmd /c :
 
-  gosu user wineconsole 'C:\msys64\usr\bin\bash.exe' --login ${@+"${@}"}
+    gosu user wineconsole 'C:\msys64\usr\bin\bash.exe' --login ${@+"${@}"}
+  fi
 fi
