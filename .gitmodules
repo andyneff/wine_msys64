@@ -1,0 +1,3 @@
+[submodule "external/just"]
+	path = external/just
+	url = git@github.com:visionsystemsinc/just.git

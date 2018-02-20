@@ -1,34 +1,59 @@
-# MSYS2 in Wine in docker experiments
-
-Big thanks to @fracting and https://github.com/TeaCI/msys2-docker for figuring
-out how to get MSYS2 in Wine in an Ubuntu 14.04 docker. Without this, I would
-have been hopeless
-
-https://github.com/fracting/wine-fracting/wiki/MSYS2-on-Wine
-https://github.com/TeaCI/tea-ci/wiki/Msys2-on-Wine
+Getting msys2 to work in wine is very tricky. Here is a set of docker images
+based off of https://github.com/TeaCI/msys2-docker that should work with Linux
+base images other than Ubuntu 14.04.
 
 ## TL;DR
 
 ```
-docker-compose run -e USER_ID=`id -u` wine
+docker run -it --rm --cap-add SYS_PTRACE \
+           -v /tmp/.X11-unix:/tmp/.X11-unix:ro \
+           -v wine_ubuntu_14.04:/home/.user_wine \
+           -e DISPLAY -e USER_ID=`id -u` \
+           andyneff/wine_msys64:ubuntu_14.04
+
+#or
+
+docker-compose run -e USER_ID=`id -u` --rm ubuntu_14.04
 ```
+
+## Running with bells and whistles
+
+```
+. setup.env # Only need to run this once
+just run ubuntu_14.04
+```
+
+## Graphics
+
+With these dockers you can run MSYS2 bash in a docker either graphically
+(which leverages `mintty.exe`) or non-grapically using wineconsole in ncurses
+mode. All of the bugs I have encountered have been worked around to the best
+of my ability and should work out of the box.
 
 ## Options
 
-1. `USER_ID`
-    - Sets the USER_ID inside the docker to match the user_id on the host. This
+1. `DISPLAY` - Environment variable
+    - By default, copies your current `DISPLAY` host value. You can set it to
+      something else, or set it to null (blank) to disable graphics
+1. `USER_ID` - Environment variable
+    - Sets the UID inside the docker to match the user_id on the host. This
       makes X11 work smoother, and files that you write to other mounted volumes
       be owned correctly
-1. `FAST_WINE_DIR`
+1. `GROUP_ID` - Environment variable
+    - Set the GID inside the docker, less important, but nice to have it match
+1. `FAST_WINE_DIR`  - Environment variable
     - "You do a lot of ownership stuff for files, and it takes time, and I really
       don't care about it, can you stop that?"
     - Sure! Just set the environment variable `FAST_WINE_DIR` to anything
-1. `WINE_MONO_VERSION`, `WINE_GECKO_VERSION`, `WINE_VERSION`
+1. `WINE_MONO_VERSION`, `WINE_GECKO_VERSION`, `WINE_VERSION`, 'MSYS2_VERSION' - Build Argument
     - Build args you can change to easily change these versions. But be careful
       MSYS2 may not work with the wine version you pick
     - The repo that docker image is configured with might not have the wine
       version you want too.
-1. `MSYS2_WINE_WORKAROUND`
+1. `MSYSTEM` - Environment variable
+    - Can be set to MINGW64, MINGW32, or MSYS2 for the desired mode.
+    - Defaults to MINGW64
+1. `MSYS2_WINE_WORKAROUND` - Environment variable
     - 0 for debian:8 based OSes, 1 for all others. If additional workarounds
       are needed, then 2, 3, 4, etc...
 

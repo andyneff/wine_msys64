@@ -2,7 +2,7 @@ version: "2.3"
 
 services:
   ubuntu_14.04: &wine
-    image: vsiri/wine_msys64:ubuntu_14.04
+    image: andyneff/wine_msys64:ubuntu_14.04
     cap_add:
       - SYS_PTRACE
     build:  &wine_build
@@ -17,7 +17,7 @@ services:
     network_mode: bridge
   ubuntu_16.04:
     <<: *wine
-    image: vsiri/wine_msys64:ubuntu_16.04
+    image: andyneff/wine_msys64:ubuntu_16.04
     build:
       <<: *wine_build
       dockerfile: ubuntu_16.04.Dockerfile
@@ -26,7 +26,7 @@ services:
       - wine_ubuntu_16.04:/home/.user_wine
   debian_8:
     <<: *wine
-    image: vsiri/wine_msys64:debian_8
+    image: andyneff/wine_msys64:debian_8
     build:
       <<: *wine_build
       dockerfile: debian_8.Dockerfile
@@ -35,7 +35,7 @@ services:
       - wine_debian_8:/home/.user_wine
   debian_9:
     <<: *wine
-    image: vsiri/wine_msys64:debian_9
+    image: andyneff/wine_msys64:debian_9
     build:
       <<: *wine_build
       dockerfile: debian_9.Dockerfile
@@ -44,7 +44,7 @@ services:
       - wine_debian_9:/home/.user_wine
   fedora_27:
     <<: *wine
-    image: vsiri/wine_msys64:fedora_27
+    image: andyneff/wine_msys64:fedora_27
     build:
       <<: *wine_build
       dockerfile: fedora_27.Dockerfile
