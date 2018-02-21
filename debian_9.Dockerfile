@@ -65,6 +65,17 @@ RUN apt-get update; \
     apt-get clean -y
 
 
+
+
+
+
+
+
+
+
+
+
+
 FROM wine-staging as wine-init
 
 # Normal "Clean" docker rules do not apply here, no reason to keep image minimal
@@ -142,7 +153,8 @@ ENV LANG=en_US.UTF-8 \
     TERM=xterm-256color \
     WINPTY_SHOW_CONSOLE=1 \
     MSYSTEM=MINGW64 \
-    MSYS2_WINE_WORKAROUND=1
+    MSYS2_WINE_WORKAROUND=1 \
+    CHERE_INVOKING=1
 
 ADD wine_entrypoint.bsh /
 RUN chmod 755 /wine_entrypoint.bsh

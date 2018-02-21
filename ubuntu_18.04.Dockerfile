@@ -22,6 +22,8 @@ RUN dpkg --add-architecture i386; \
     apt-get clean -y
 
 
+
+
 ARG WINE_VERSION=2.4.0-3~xenial
 RUN build_deps="curl ca-certificates"; \
     apt-get update; \
@@ -50,18 +52,6 @@ ENV LANG=en_US.UTF-8 \
     LANGUAGE=en_US:en \
     LC_ALL=en_US.UTF-8
 
-# This IS bug https://bugs.winehq.org/show_bug.cgi?id=43715
-RUN build_deps="curl"; \
-    apt-get update; \
-    DEBIAN_FRONTEND=noninteractive \
-    apt-get install -y --no-install-recommends ${build_deps}; \
-    curl -LO http://archive.ubuntu.com/ubuntu/pool/main/f/freetype/libfreetype6_2.8-0.2ubuntu2_i386.deb; \
-    curl -LO http://archive.ubuntu.com/ubuntu/pool/main/f/freetype/libfreetype6_2.8-0.2ubuntu2_amd64.deb; \
-    dpkg -i libfreetype6_2.8*.deb; \
-    rm libfreetype6_2.8*.deb; \
-    DEBIAN_FRONTEND=noninteractive apt-get purge --auto-remove -y ${build_deps}; \
-    apt-get clean -y
-
 ####
 
 # Font fun
@@ -74,6 +64,17 @@ RUN apt-get update; \
     DEBIAN_FRONTEND=noninteractive apt-get purge -y --autoremove curl; \
     apt-get clean -y
 
+# This IS bug https://bugs.winehq.org/show_bug.cgi?id=43715
+RUN build_deps="curl"; \
+    apt-get update; \
+    DEBIAN_FRONTEND=noninteractive \
+    apt-get install -y --no-install-recommends ${build_deps}; \
+    curl -LO http://archive.ubuntu.com/ubuntu/pool/main/f/freetype/libfreetype6_2.8-0.2ubuntu2_i386.deb; \
+    curl -LO http://archive.ubuntu.com/ubuntu/pool/main/f/freetype/libfreetype6_2.8-0.2ubuntu2_amd64.deb; \
+    dpkg -i libfreetype6_2.8*.deb; \
+    rm libfreetype6_2.8*.deb; \
+    DEBIAN_FRONTEND=noninteractive apt-get purge --auto-remove -y ${build_deps}; \
+    apt-get clean -y
 
 FROM wine-staging as wine-init
 
@@ -152,7 +153,8 @@ ENV LANG=en_US.UTF-8 \
     TERM=xterm-256color \
     WINPTY_SHOW_CONSOLE=1 \
     MSYSTEM=MINGW64 \
-    MSYS2_WINE_WORKAROUND=1
+    MSYS2_WINE_WORKAROUND=1 \
+    CHERE_INVOKING=1
 
 ADD wine_entrypoint.bsh /
 RUN chmod 755 /wine_entrypoint.bsh

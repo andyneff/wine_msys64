@@ -65,6 +65,10 @@ of my ability and should work out of the box.
 1. `MSYS2_WINE_WORKAROUND` - Environment variable
     - 0 for debian:8 based OSes, 1 for all others. If additional workarounds
       are needed, then 2, 3, 4, etc...
+1. `CHERE_INVOKING` Environment variable
+    - By default, a login shell on msys2 will change to the home directory. This
+      behavior is disabled by default, to re-enable it, set `CHERE_INVOKING` to
+      a blank string
 
 ## Motivation
 
