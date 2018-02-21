@@ -4,7 +4,7 @@ base images other than Ubuntu 14.04.
 
 ## TL;DR
 
-```
+```bash
 docker run -it --rm --cap-add SYS_PTRACE \
            -v /tmp/.X11-unix:/tmp/.X11-unix:ro \
            -v wine_ubuntu_14.04:/home/.user_wine \
@@ -30,6 +30,15 @@ With these dockers you can run MSYS2 bash in a docker either graphically
 mode. All of the bugs I have encountered have been worked around to the best
 of my ability and should work out of the box.
 
+## Special command
+
+1. `root` - Starts the container as root in normal bash. From there, you can do
+   What is needed as root. To run wine commands
+
+    ```
+    gosu user wineconsole # etc...
+    ```
+
 ## Options
 
 1. `DISPLAY` - Environment variable
@@ -45,7 +54,7 @@ of my ability and should work out of the box.
     - "You do a lot of ownership stuff for files, and it takes time, and I really
       don't care about it, can you stop that?"
     - Sure! Just set the environment variable `FAST_WINE_DIR` to anything
-1. `WINE_MONO_VERSION`, `WINE_GECKO_VERSION`, `WINE_VERSION`, 'MSYS2_VERSION' - Build Argument
+1. `WINE_MONO_VERSION`, `WINE_GECKO_VERSION`, `WINE_VERSION`, `MSYS2_VERSION` - Build Argument
     - Build args you can change to easily change these versions. But be careful
       MSYS2 may not work with the wine version you pick
     - The repo that docker image is configured with might not have the wine
