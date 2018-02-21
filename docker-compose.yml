@@ -60,6 +60,15 @@ services:
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:ro
       - wine_fedora_27:/home/.user_wine
+  centos_7:
+    <<: *wine
+    image: andyneff/wine_msys64:centos_7
+    build:
+      <<: *wine_build
+      dockerfile: centos_7.Dockerfile
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:ro
+      - wine_centos_7:/home/.user_wine
 
 volumes:
   wine_ubuntu_14.04:
@@ -68,3 +77,4 @@ volumes:
   wine_debian_8:
   wine_debian_9:
   wine_fedora_27:
+  wine_centos_7:
