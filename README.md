@@ -39,6 +39,65 @@ of my ability and should work out of the box.
     gosu user wineconsole # etc...
     ```
 
+    You can also add addition argument after root, and these are passed along
+    as arguments to the bash call. So `root -c "echo hi"` would print "hi" and
+    end.
+
+## Installing packages into the msys environment
+
+Since msys2 requires SYS_PTRACE, you can not run any `wine` `pacman` commands in
+a Dockerfile. Just getting bash up and running is complicated enough, so where is
+there room for a setup script to install pacman packages, or anything else for
+that matter?
+
+The compromise I came up was the ability to add additional entrypoints so that
+on the start of the docker container, packages will be installed. And since the
+wine environment can be mounted into a docker volume, this "install" will last
+for the life of the docker volume, which can be the lifetime of the container or
+not, depending on what you want your container use pattern to be.
+
+These additional entrypoints are executed at the end of the original wine
+entrypoint, right before the final wine commands would be executed.
+
+Example:
+
+```Dockerfile
+FROM andyneff/wine_msys64:ubuntu_14.04
+
+ADD setup_entrypoint.bsh /
+RUN chmod 755 /setup_entrypoint.bsh
+ENTRYPOINT ["/wine_entrypoint.bsh", "--add", "/setup_entrypoint.bsh"]
+```
+
+By changing the `ENTRYPOINT` instead of `CMD`, you are free to use the command
+override mechanisms in docker without having to remember to add your additional
+entrypoints every time.
+
+Here's an example of an `setup_entrypoint.bsh` file
+
+```bash
+#!/usr/bin/env bash
+
+if [ ! -f /home/user/.wine/drive_c/msys64/usr/bin/cmp.exe ]; then
+( # Use a subshell here, so that you aren't unsetting DISPLAY for everything.
+  # This comes down to preference, of how you want it to look/feel
+  unset DISPLAY
+  # This fixes a known (by me) wineconole bug
+  gosu user wineconsole cmd /c :
+  # Install diffutils
+  gosu user wineconsole 'C:\msys64\usr\bin\bash.exe' --login -c "pacman -S --noconfirm diffutils"
+  # Wait for the wineserver to end
+  gosu user wineserver -w
+)
+fi
+```
+
+You can have multiple additional entrypoints, for example:
+
+```Dockerfile
+ENTRYPOINT ["/wine_entrypoint.bsh", "--add", "/one.bsh", "--add", "/two.bsh"]
+```
+
 ## Options
 
 1. `DISPLAY` - Environment variable

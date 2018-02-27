@@ -103,3 +103,17 @@ in wine 3 graphically.
 1. Why am I installing all the dependencies manually?
     - I got impatient. It just saves time when constantly rebuilding the docker
       images. I'll remove that eventually
+
+1. I have to run `wineconsole` twice, so that it works the second time
+    - On some OSes, if I run `wineconsole bash` right away, it does not work.
+      however, if I run `wineconsole`, exit, and then run `wineconsole` bash, it
+      works. It does not appear to be the `wineserver` from the first
+      `wineconsole` has to be still running when the second `wineconsole` is
+      executed, but it also doesn't matter. So the common workaround is to run
+      a dummy command in `wineconsole`, before running `wineconsole bash`. This
+      is true for both `wineconsole` backends.
+
+    ```bash
+    gosu user wineconsole cmd /c :
+    gosu user wineconsole 'C:\msys64\usr\bin\bash.exe' --login ${@+"${@}"}
+    ```

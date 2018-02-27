@@ -41,8 +41,22 @@ else
   fi
 fi
 
+while [ "${1-unset}" == "--add" ]; do
+  # Remove the --add flag
+  shift 1
+  # Execute whatever the additional entrypoint is, with all the arguments
+  "${@}"
+  # Remove the entrypoint arguments itself. This is done so that the additional
+  #  entrypoints can do one of three things:
+  # 1) Non zero exit, in which case this script would be over
+  # 2) Use the additional arguments for whatever means, and then continue
+  # 3) Not use and of the other extra, and not exit, in which case the rest of
+  #    this entrypoint continues.
+  shift 1
+done
+
 if [ "${1-unset}" = "root" ]; then
-  exec bash
+  exec bash ${@+"${@}"}
 else
   if [ -n "${DISPLAY:+set}" ] && [ -d /tmp/.X11-unix ]; then
     if [ "${MSYS2_WINE_WORKAROUND}" = "0" ]; then
