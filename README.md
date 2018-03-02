@@ -16,7 +16,7 @@ docker run -it --rm --cap-add SYS_PTRACE \
 docker-compose run -e USER_ID=`id -u` --rm ubuntu_14.04
 ```
 
-For non-graphical (ncurses)
+For non-graphical (ncurses) mode:
 
 
 ```bash
@@ -40,7 +40,7 @@ just run ubuntu_14.04
 ## Graphics
 
 With these dockers you can run MSYS2 bash in a docker either graphically
-(which leverages `mintty.exe`) or non-grapically using wineconsole in ncurses
+(which leverages `mintty.exe`) or non-grapically using `wineconsole` in ncurses
 mode. All of the bugs I have encountered have been worked around to the best
 of my ability and should work out of the box.
 
