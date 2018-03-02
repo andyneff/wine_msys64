@@ -16,6 +16,20 @@ docker run -it --rm --cap-add SYS_PTRACE \
 docker-compose run -e USER_ID=`id -u` --rm ubuntu_14.04
 ```
 
+For non-graphical (ncurses)
+
+
+```bash
+docker run -it --rm --cap-add SYS_PTRACE \
+           -v wine_ubuntu_14.04:/home/.user_wine \
+           -e USER_ID=`id -u` \
+           andyneff/wine_msys64:ubuntu_14.04
+
+#or
+
+docker-compose run -e DISPLAY= -e USER_ID=`id -u` --rm ubuntu_14.04
+```
+
 ## Running with bells and whistles
 
 ```
