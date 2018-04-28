@@ -56,9 +56,11 @@ while [ "${1-unset}" == "--add" ]; do
 done
 
 if [ "${1-unset}" = "root" ]; then
+  # Remove the "root" marker
+  shift 1
   exec bash ${@+"${@}"}
 else
-  if [ -n "${DISPLAY:+set}" ] && [ -d /tmp/.X11-unix ]; then
+  if [ -n "${DISPLAY:+set}" ]; then
     if [ "${MSYS2_WINE_WORKAROUND}" = "0" ]; then
       # Start wine
       gosu user wine 'C:\msys64\usr\bin\mintty.exe' /usr/bin/bash --login ${@+"${@}"}
