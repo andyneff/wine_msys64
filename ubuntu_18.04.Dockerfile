@@ -25,7 +25,7 @@ RUN dpkg --add-architecture i386; \
 
 
 ARG WINE_VERSION=2.4.0-3~xenial
-RUN build_deps="curl ca-certificates"; \
+RUN build_deps="curl ca-certificates gnupg2"; \
     apt-get update; \
     DEBIAN_FRONTEND=noninteractive \
     apt-get install -y --no-install-recommends ${build_deps}; \
@@ -111,7 +111,6 @@ RUN export WINEPREFIX=/home/wine; \
     curl -L -o /tmp/msys2-base-x86_64-${MSYS2_VERSION}.tar.xz \
          http://repo.msys2.org/distrib/x86_64/msys2-base-x86_64-${MSYS2_VERSION}.tar.xz; \
     tar xf /tmp/msys2-base-x86_64-${MSYS2_VERSION}.tar.xz; \
-
     # Create reg file
     echo 'Windows Registry Editor Version 5.00' > /tmp/patch.reg; \
     # Patch the font for mintty - Make Lucida Console use Droid Sans Mono
