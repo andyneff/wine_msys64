@@ -30,7 +30,7 @@ appear to affect whether anything "works" or not
     which are still a little out of date, but a little more up to date
 
 1. "workaround https://bugs.wine-staging.com/show_bug.cgi?id=403"
-  - No idea. Lost to the void of internet time because wine thinks they are [smarter
+    - No idea. Lost to the void of internet time because wine thinks they are [smarter
 than google](https://bugs.winehq.org/show_bug.cgi?id=35756).
 
 1. "Work around https://bugs.wine-staging.com/show_bug.cgi?id=682"
@@ -52,6 +52,16 @@ than google](https://bugs.winehq.org/show_bug.cgi?id=35756).
 to prevent winpty from hiding the console window.
 
 1. You need a UTF-8 LC_ALL so that mintty displays
+
+1. Wine prints following error message
+
+    ```
+    err:module:attach_process_dlls "msys-2.0.dll" failed to initialize, aborting
+    err:module:LdrInitializeThunk Main exe initialization for L"C:\\msys64\\usr\\bin\\mintty.exe" failed, status c0000005
+    ```
+    
+    - Something to do with loading dlls might be making a ptrace call? Not sure, but I know if I give the contrainer SYS_PTRACE permissions, it works.
+    - Maybe this is using a debug version of wine, so it makes some ptrace calls even when not debugging? Or this may just be normal behavior for wine, and it's as simple as that.
 
 1. Black mintty
     - https://bugs.winehq.org/show_bug.cgi?id=44066
